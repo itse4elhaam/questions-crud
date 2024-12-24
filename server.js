@@ -33,8 +33,7 @@ app.get("/api", async (req, res) => {
 
 const endpoint = "/api/questions";
 
-// questions crud
-app.get(endpoint, async (req, res) => {
+async function handleGetData(req,res){
   try {
     const questionsData = await sql(`SELECT * from questions;`)
 
@@ -48,11 +47,12 @@ app.get(endpoint, async (req, res) => {
       message: "Internal server error"
     })
   }
-})
+}
 
+// questions crud
+app.get(endpoint, handleGetData)
 
-// validate the data and parametized query
-app.post(endpoint, async (req, res) => {
+async function handlePostData(req, res) {
   try {
     const { question, answer } = req.body;
 
@@ -75,36 +75,10 @@ VALUES (default, '${question}', '${answer}',  default);
       message: "Internal server error"
     })
   }
-})
-
+}
 
 // validate the data and parametized query
-app.post(endpoint, async (req, res) => {
-  try {
-    const { question, answer } = req.body;
-
-    if (!question || !answer) {
-      return res.status(400).send({
-        message: "Question or answer cannot be null"
-      })
-    }
-
-    const result = await sql(`INSERT INTO questions (id, question, answer, date_created) 
-   VALUES (DEFAULT, $1, $2, DEFAULT)`,
-      [question, answer])
-    console.log(`
-    server.js:62
-    result ->
-    ${result}
-  `)
-
-    return res.status(200).send("Hello, world")
-  } catch (error) {
-    return res.status(500).send({
-      message: "Internal server error"
-    })
-  }
-})
+app.post(endpoint, handlePostData)
 
 
 // TODO: implement update and delete endpoints
